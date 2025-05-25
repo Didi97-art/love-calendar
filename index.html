@@ -291,7 +291,7 @@
 
     // 4. Отправка события в таблицу Supabase
     const { data, error } = await supabase
-      .from('events') // <-- Название таблицы в Supabase
+      .from('Calendar') // <-- Название таблицы в Supabase
       .insert([
         { title, date, time, note, repeat }
       ]);
