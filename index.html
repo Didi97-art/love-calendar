@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Love Calendar</title>
   <style>
     body {
@@ -98,7 +98,6 @@
       background-color: #f49ca0;
     }
 
-    /* Модальное окно */
     .modal {
       display: none;
       position: fixed;
@@ -160,7 +159,7 @@
   <div class="calendar-container">
     <div class="month">
       <button onclick="prevMonth()">&lt;</button>
-      <div id="monthYear">Май 2025</div>
+      <div id="monthYear">Загрузка...</div>
       <button onclick="nextMonth()">&gt;</button>
     </div>
 
@@ -200,7 +199,7 @@
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.ready();
+    if (tg && tg.ready) tg.ready();
 
     const calendarDates = document.getElementById("calendarDates");
     const monthYear = document.getElementById("monthYear");
@@ -287,7 +286,10 @@
         partner
       };
 
-      Telegram.WebApp.sendData(JSON.stringify(eventData));
+      if (Telegram.WebApp && Telegram.WebApp.sendData) {
+        Telegram.WebApp.sendData(JSON.stringify(eventData));
+      }
+
       alert("Событие отправлено в Telegram!");
       closeModal();
     }
