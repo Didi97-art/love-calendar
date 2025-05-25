@@ -184,16 +184,23 @@
           <option value="daily">Каждый день</option>
           <option value="weekly">Каждую неделю</option>
           <option value="monthly">Каждый месяц</option>
+          <option value="year">Каждый год</option>
         </select>
         <button type="submit">Сохранить</button>
       </form>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const monthYear = document.getElementById('monthYear');
     const calendarDays = document.getElementById('calendarDays');
     const eventDateInput = document.getElementById('eventDate');
+
+const supabaseUrl = 'https://gppeowtutjylrcwlrdkd.supabase.co';  // Вставь сюда Project URL из Supabase
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcGVvd3R1dGp5bHJjd2xyZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyMDE5MTIsImV4cCI6MjA2Mzc3NzkxMn0.EVjUxAfvsJB2KiG3KYyWircPxftHFAZhfMSt2uaPgWY';  // Вставь сюда Anon Public Key
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let currentDate = new Date();
 
@@ -250,23 +257,40 @@
       document.getElementById("eventModal").style.display = "none";
     }
 
-    document.getElementById("eventForm").addEventListener("submit", function (e) {
-      e.preventDefault();
+    document.getElementById("eventForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-      const title = document.getElementById("eventTitle").value;
-      const date = document.getElementById("eventDate").value;
-      const time = document.getElementById("eventTime").value;
-      const note = document.getElementById("eventNote").value;
-      const repeat = document.getElementById("eventRepeat").value;
+  const title = document.getElementById("eventTitle").value;
+  const date = document.getElementById("eventDate").value;
+  const time = document.getElementById("eventTime").value;
+  const note = document.getElementById("eventNote").value;
+  const repeat = document.getElementById("eventRepeat").value;
 
-      console.log("Событие:", { title, date, time, note, repeat });
+  const { data, error } = await supabase
+    .from('events')
+    .insert([
+      {
+        user_id: 'default_user',
+        title: title,
+        date: date,
+        time: time,
+        note: note,
+        repeat: repeat
+      }
+    ]);
 
-      this.reset();
-      closeModal();
-      alert("Событие добавлено!");
-    });
+  if (error) {
+    alert('Ошибка при добавлении события: ' + error.message);
+  } else {
+    alert('Событие добавлено!');
+    this.reset();
+  }
+});
 
     renderCalendar();
   </script>
+
+
+
 </body>
 </html>
