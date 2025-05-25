@@ -1,3 +1,4 @@
+Код который работает
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -79,16 +80,14 @@
       background-color: #fff0f5;
       padding: 15px;
       border-radius: 10px;
-      text-align: left;
     }
 
-    .form-container input, .form-container button, .form-container select {
+    .form-container input, .form-container button {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
     }
 
     .form-container button {
@@ -100,12 +99,6 @@
 
     .form-container button:hover {
       background-color: #d2668c;
-    }
-
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
     }
   </style>
 </head>
@@ -132,40 +125,15 @@
   </div>
 
   <div class="form-container">
-    <h2>Добавляем событие</h2>
+    <h2>Добавить событие</h2>
     <form id="eventForm">
-      <label for="eventTitle">Название события</label>
       <input type="text" id="eventTitle" placeholder="Название события" required />
-
-      <label for="eventDate">Дата</label>
       <input type="date" id="eventDate" required />
-
-      <label for="eventTime">Время</label>
-      <input type="time" id="eventTime" required />
-
-      <label for="eventNote">Пометка (необязательно)</label>
-      <input type="text" id="eventNote" placeholder="Пометка" />
-
-      <label for="eventRepeat">Регулярность</label>
-      <select id="eventRepeat">
-        <option value="once">Однократно</option>
-        <option value="daily">Ежедневно</option>
-        <option value="weekly">Еженедельно</option>
-        <option value="monthly">Ежемесячно</option>
-      </select>
-
       <button type="submit">Сохранить</button>
     </form>
   </div>
 
-  <!-- Подключаем Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
-    const supabaseUrl = 'ТВОЙ_SUPABASE_URL';  // Заменить на свой URL
-    const supabaseKey = 'ТВОЙ_SUPABASE_ANON_KEY';  // Заменить на свой анонимный ключ
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
     const monthYear = document.getElementById('monthYear');
     const calendarDays = document.getElementById('calendarDays');
     const eventDateInput = document.getElementById('eventDate');
@@ -216,37 +184,21 @@
       renderCalendar();
     }
 
-    document.getElementById("eventForm").addEventListener("submit", async function(e) {
+    document.getElementById("eventForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
       const title = document.getElementById("eventTitle").value;
       const date = document.getElementById("eventDate").value;
-      const time = document.getElementById("eventTime").value;
-      const note = document.getElementById("eventNote").value;
-      const repeat = document.getElementById("eventRepeat").value;
 
-      const { data, error } = await supabase
-        .from('events')
-        .insert([
-          {
-            user_id: 'default_user',
-            title: title,
-            date: date,
-            time: time,
-            note: note,
-            repeat: repeat
-          }
-        ]);
+      // Здесь можно отправить данные в Telegram-бота через API
+      console.log("Событие:", title, date);
 
-      if (error) {
-        alert('Ошибка при добавлении события: ' + error.message);
-      } else {
-        alert('Событие добавлено!');
-        this.reset();
-      }
+      this.reset();
+      alert("Событие добавлено!");
     });
 
     renderCalendar();
   </script>
 </body>
 </html>
+
