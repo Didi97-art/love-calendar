@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Календарь для пары</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Календарь</title>
 </head>
 <body>
-  <h2>Добавить событие</h2>
-  <input type="text" id="eventText" placeholder="Введите событие..." />
-  <button onclick="sendEvent()">Добавить</button>
+    <div class="calendar">
+        <h1>Календарь</h1>
+        <div id="currentMonth"></div>
+        <div id="eventsList"></div>
+        <button id="addEventButton">Добавить событие</button>
+    </div>
 
-  <script src="script.js"></script>
+    <form id="eventForm" style="display:none;">
+        <input type="text" placeholder="Название события" required>
+        <input type="date" required>
+        <input type="time" placeholder="Время">
+        <button type="submit">Добавить событие</button>
+    </form>
+
+    <script src="script.js"></script>
 </body>
 </html>
