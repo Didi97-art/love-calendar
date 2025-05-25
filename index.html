@@ -73,130 +73,41 @@
       background-color: #f8bbd0;
     }
 
-    .form-container {
-      margin: 20px auto;
-      max-width: 400px;
-      background-color: #fff0f5;
-      padding: 15px;
-      border-radius: 10px;
-    }
-
-    .form-container input, .form-container button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .form-container button {
+    .add-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      border: none;
+      border-radius: 50%;
       background-color: #e77ca4;
       color: white;
-      border: none;
       cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    .form-container button:hover {
-      background-color: #d2668c;
-    }
-  </style>
-</head>
-<body>
-  <h1>Love Calendar</h1>
-
-  <div class="calendar">
-    <div class="calendar-header">
-      <button onclick="prevMonth()">‹</button>
-      <span id="monthYear"></span>
-      <button onclick="nextMonth()">›</button>
-    </div>
-
-    <div class="day-names">
-      <div>Пн</div>
-      <div>Вт</div>
-      <div>Ср</div>
-      <div>Чт</div>
-      <div>Пт</div>
-      <div>Сб</div>
-      <div>Вс</div>
-    </div>
-    <div class="calendar-days" id="calendarDays"></div>
-  </div>
-
-  <div class="form-container">
-    <h2>Добавить событие</h2>
-    <form id="eventForm">
-      <input type="text" id="eventTitle" placeholder="Название события" required />
-      <input type="date" id="eventDate" required />
-      <button type="submit">Сохранить</button>
-    </form>
-  </div>
-
-  <script>
-    const monthYear = document.getElementById('monthYear');
-    const calendarDays = document.getElementById('calendarDays');
-    const eventDateInput = document.getElementById('eventDate');
-
-    let currentDate = new Date();
-
-    function renderCalendar() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const lastDate = new Date(year, month + 1, 0).getDate();
-
-      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-
-      monthYear.textContent = `${monthNames[month]} ${year}`;
-
-      calendarDays.innerHTML = '';
-
-      let start = firstDay === 0 ? 6 : firstDay - 1;
-
-      for (let i = 0; i < start; i++) {
-        const empty = document.createElement('div');
-        calendarDays.appendChild(empty);
-      }
-
-      for (let day = 1; day <= lastDate; day++) {
-        const dayElement = document.createElement('div');
-        dayElement.textContent = day;
-
-        dayElement.onclick = () => {
-          const selectedDate = new Date(year, month, day);
-          eventDateInput.value = selectedDate.toISOString().split('T')[0];
-        };
-
-        calendarDays.appendChild(dayElement);
-      }
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
     }
 
-    function prevMonth() {
-      currentDate.setMonth(currentDate.getMonth() - 1);
-      renderCalendar();
+    .modal-content {
+      background-color: #fff0f5;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      text-align: left;
     }
 
-    function nextMonth() {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-      renderCalendar();
-    }
-
-    document.getElementById("eventForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const title = document.getElementById("eventTitle").value;
-      const date = document.getElementById("eventDate").value;
-
-      // Здесь можно отправить данные в Telegram-бота через API
-      console.log("Событие:", title, date);
-
-      this.reset();
-      alert("Событие добавлено!");
-    });
-
-    renderCalendar();
-  </script>
-</body>
-</html>
+    .modal-content h2 {
