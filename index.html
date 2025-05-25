@@ -1,89 +1,178 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Love Calendar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #f7f4f0;
-      color: #333;
-    }
-    h1 {
-      text-align: center;
-      color: #a85c5c;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 10px;
-      background-color: #a85c5c;
-      border: none;
-      color: white;
-      font-size: 18px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #934848;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Love Calendar</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 420px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #faf4f0;
+    color: #4a3c3c;
+  }
+  h1 {
+    text-align: center;
+    color: #b35959;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 7px;
+    margin-top: 4px;
+    border: 1px solid #ccaaaa;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 12px;
+    background-color: #b35959;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #9d4949;
+  }
+  .feedback {
+    margin-top: 15px;
+    font-weight: bold;
+    color: green;
+    text-align: center;
+  }
+  .history {
+    margin-top: 25px;
+    background: #fff3f3;
+    padding: 12px;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .event-item {
+    border-bottom: 1px solid #d8b5b5;
+    padding: 8px 0;
+  }
+  .event-item:last-child {
+    border: none;
+  }
+</style>
 </head>
 <body>
-  <h1>Добавить событие</h1>
-  <form id="eventForm">
-    <label for="title">Название события</label>
-    <input type="text" id="title" name="title" required />
 
-    <label for="date">Дата</label>
-    <input type="date" id="date" name="date" required />
+<h1>Добавить событие</h1>
+<form id="eventForm">
+  <label for="title">Название события *</label>
+  <input type="text" id="title" name="title" required placeholder="Например, Встреча" />
 
-    <label for="notes">Примечание</label>
-    <textarea id="notes" name="notes" rows="3"></textarea>
+  <label for="date">Дата *</label>
+  <input type="date" id="date" name="date" required />
 
-    <button type="submit">Отправить в Telegram</button>
-  </form>
+  <label for="time">Время</label>
+  <input type="time" id="time" name="time" />
 
-  <script>
-    // Проверяем, что Telegram WebApp API доступен
-    if (window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
+  <label for="type">Тип события</label>
+  <select id="type" name="type">
+    <option value="Встреча">Встреча</option>
+    <option value="Праздник">Праздник</option>
+    <option value="Задача">Задача</option>
+    <option value="Напоминание">Напоминание</option>
+  </select>
 
-      document.getElementById('eventForm').addEventListener('submit', function (e) {
-        e.preventDefault();
+  <label for="emotion">Настроение</label>
+  <select id="emotion" name="emotion">
+    <option value="😊">😊 Радость</option>
+    <option value="😢">😢 Грусть</option>
+    <option value="😍">😍 Любовь</option>
+    <option value="😠">😠 Злость</option>
+    <option value="😴">😴 Сонливость</option>
+  </select>
 
-        const eventData = {
-          title: document.getElementById('title').value,
-          date: document.getElementById('date').value,
-          notes: document.getElementById('notes').value,
-        };
+  <label for="notes">Примечания</label>
+  <textarea id="notes" name="notes" rows="3" placeholder="Дополнительная информация..."></textarea>
 
-        // Отправляем данные в бота
-        tg.sendData(JSON.stringify(eventData));
+  <button type="submit">Отправить в Telegram</button>
+</form>
 
-        // Можно закрыть WebApp после отправки
-        tg.close();
-      });
-    } else {
-      alert('Это приложение должно запускаться из Telegram WebApp');
+<div class="feedback" id="feedback"></div>
+
+<h2>История событий</h2>
+<div class="history" id="history"></div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  const form = document.getElementById('eventForm');
+  const feedbackEl = document.getElementById('feedback');
+  const historyEl = document.getElementById('history');
+
+  // Загрузка истории из localStorage
+  let eventsHistory = JSON.parse(localStorage.getItem('loveCalendarEvents') || '[]');
+
+  function renderHistory() {
+    if (eventsHistory.length === 0) {
+      historyEl.innerHTML = '<i>События ещё не добавлены</i>';
+      return;
     }
-  </script>
+    historyEl.innerHTML = eventsHistory.map(event => `
+      <div class="event-item">
+        <strong>${event.title}</strong> (${event.date} ${event.time || ''})<br/>
+        Тип: ${event.type}, Настроение: ${event.emotion || '-'}<br/>
+        ${event.notes ? 'Примечания: ' + event.notes : ''}
+      </div>
+    `).join('');
+  }
+
+  renderHistory();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const eventData = {
+      title: form.title.value.trim(),
+      date: form.date.value,
+      time: form.time.value,
+      type: form.type.value,
+      emotion: form.emotion.value,
+      notes: form.notes.value.trim(),
+    };
+
+    // Отправка данных в Telegram
+    if (tg) {
+      tg.sendData(JSON.stringify(eventData));
+      tg.close();
+    }
+
+    // Добавляем событие в локальную историю
+    eventsHistory.push(eventData);
+    localStorage.setItem('loveCalendarEvents', JSON.stringify(eventsHistory));
+    renderHistory();
+
+    // Фидбэк
+    feedbackEl.
+  textContent = 'Событие добавлено!';
+    form.reset();
+
+    setTimeout(() => {
+      feedbackEl.textContent = '';
+    }, 3000);
+  });
+
+  // Проверяем, что запускается из Telegram
+  if (!tg) {
+    alert('Это приложение работает только внутри Telegram WebApp.');
+  }
+</script>
+
 </body>
 </html>
