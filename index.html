@@ -199,6 +199,9 @@
   </div>
 
   <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
     const calendarDates = document.getElementById("calendarDates");
     const monthYear = document.getElementById("monthYear");
 
@@ -277,14 +280,15 @@
         return;
       }
 
-      console.log("Новое событие:", {
+      const eventData = {
         date,
         title,
         repeat,
         partner
-      });
+      };
 
-      alert("Событие сохранено (пока только в консоли)");
+      Telegram.WebApp.sendData(JSON.stringify(eventData));
+      alert("Событие отправлено в Telegram!");
       closeModal();
     }
 
