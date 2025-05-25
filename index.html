@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Love Calendar</title>
   <style>
     body {
@@ -63,6 +63,7 @@
     .date {
       padding: 10px;
       border-radius: 8px;
+      user-select: none;
     }
 
     .today {
@@ -72,6 +73,8 @@
 
     .events {
       margin-top: 20px;
+      max-height: 150px;
+      overflow-y: auto;
     }
 
     .event-item {
@@ -80,11 +83,12 @@
       background-color: #fff3f0;
       border-left: 4px solid #ff9999;
       border-radius: 4px;
+      font-size: 14px;
     }
 
     .add-button {
       display: block;
-      margin: 20px auto;
+      margin: 20px auto 0;
       padding: 12px 24px;
       background-color: #f8c6c6;
       color: #fff;
@@ -92,10 +96,66 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
     .add-button:hover {
       background-color: #f49ca0;
+    }
+
+    /* Форма добавления события */
+    #eventFormContainer {
+      display: none; /* скрыта по умолчанию */
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+
+    #eventForm label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      color: #b36b6b;
+    }
+
+    #eventForm input[type="text"],
+    #eventForm input[type="date"],
+    #eventForm select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    #eventForm button {
+      margin-top: 16px;
+      background-color: #f8c6c6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    #eventForm button:hover {
+      background-color: #f49ca0;
+    }
+
+    /* Кнопка отмены */
+    #eventForm #cancelBtn {
+      background-color: #ccc;
+      color: #555;
+      margin-left: 10px;
+    }
+
+    #eventForm #cancelBtn:hover {
+      background-color: #aaa;
     }
   </style>
 </head>
@@ -117,19 +177,44 @@
 
     <div class="events">
       <h4>Ближайшие события:</h4>
-      <div class="event-item">27 мая — День рождения Ани</div>
-      <div class="event-item">30 мая — Совместный ужин</div>
-      <div class="event-item">3 июня — Годовщина</div>
-      <div class="event-item">6 июня — Поход в кино</div>
-      <div class="event-item">10 июня — План на отпуск</div>
+      <div id="eventList">
+        <!-- События будут тут -->
+      </div>
     </div>
 
-    <button class="add-button" onclick="alert('Окно добавления события будет здесь')">
-      Добавить событие
-    </button>
+    <button class="add-button" id="openFormBtn">Добавить событие</button>
+
+    <!-- Форма добавления события -->
+    <div id="eventFormContainer">
+      <form id="eventForm">
+        <label for="eventDate">Дата события</label>
+        <input type="date" id="eventDate" name="eventDate" required />
+
+        <label for="eventName">Название события</label>
+        <input type="text" id="eventName" name="eventName" placeholder="Например: День рождения" required />
+
+        <label for="eventRepeat">Повторять</label>
+        <select id="eventRepeat" name="eventRepeat">
+          <option value="нет">Нет</option>
+          <option value="ежедневно">Ежедневно</option>
+          <option value="еженедельно">Еженедельно</option>
+          <option value="ежемесячно">Ежемесячно</option>
+          <option value="ежегодно">Ежегодно</option>
+        </select>
+
+        <label for="eventGuest">Пригласить (Telegram username)</label>
+        <input type="text" id="eventGuest" name="eventGuest" placeholder="@username" />
+
+        <div style="margin-top: 16px;">
+          <button type="submit">Сохранить</button>
+          <button type="button" id="cancelBtn">Отмена</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
+    // --- Календарь ---
     const calendarDates = document.getElementById("calendarDates");
     const monthYear = document.getElementById("monthYear");
 
@@ -141,6 +226,9 @@
       "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
     ];
+
+    // Список событий в памяти (для демо)
+    let events = [];
 
     function renderCalendar() {
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -189,7 +277,101 @@
       renderCalendar();
     }
 
+    // --- Работа с формой ---
+    const openFormBtn = document.getElementById("openFormBtn");
+    const eventFormContainer = document.getElementById("eventFormContainer");
+    const eventForm = document.getElementById("eventForm");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const eventList = document.getElementById("eventList");
+
+    openFormBtn.onclick = () => {
+      eventFormContainer.style.display = "block";
+      openFormBtn.style.display = "none";
+
+      // Установим дату по умолчанию сегодняшним числом
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      eventForm.eventDate.value = `${yyyy}-${mm}-${dd}`;
+      eventForm.eventName.value = "";
+      eventForm.eventRepeat.value = "нет";
+      eventForm.eventGuest.value = "";
+    };
+
+    cancelBtn.onclick = () => {
+      eventFormContainer.style.display = "none";
+      openFormBtn.style.display = "block";
+    };
+
+    // Функция отобразить события под календарём
+    function renderEvents() {
+      if(events.length === 0) {
+        eventList.innerHTML = '<div>Нет событий</div>';
+        return;
+      }
+      eventList.innerHTML = "";
+      // Отобразим ближайшие 5 событий по дате (сортировка)
+      let sorted = [...events].sort((a,b) => new Date(a.date) - new Date(b.date));
+      sorted.slice(0,5).forEach(ev => {
+        const div = document.createElement("div");
+        div.className = "event-item";
+        div.innerText = `${formatDateForDisplay(ev.date)} — ${ev.name}` +
+          (ev.guest ? ` (с ${ev.guest})` : "") +
+          (ev.repeat && ev.repeat !== "нет" ? ` [повтор: ${ev.repeat}]` : "");
+        eventList.appendChild(div);
+      });
+    }
+
+    // Формат даты для отображения: "27 мая"
+    function formatDateForDisplay(dateStr) {
+      const d = new Date(dateStr);
+      const day = d.getDate();
+      const month = monthNames[d.getMonth()];
+      return `${day} ${month}`;
+    }
+
+    // Отправка данных в Telegram WebApp (если доступен)
+    function sendDataToTelegram(data) {
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.sendData) {
+        Telegram.WebApp.sendData(JSON.stringify(data));
+      } else {
+        console.log("Telegram WebApp не доступен. Данные:", data);
+      }
+    }
+
+    eventForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const newEvent = {
+        date: eventForm.eventDate.value,
+        name: eventForm.eventName.value.trim(),
+        repeat: eventForm.eventRepeat.value,
+        guest: eventForm.eventGuest.value.trim(),
+      };
+
+      if(!newEvent.name || !newEvent.date) {
+        alert("Пожалуйста, заполните дату и название события.");
+        return;
+      }
+
+      // Добавляем в локальный массив (для демонстрации)
+      events.push(newEvent);
+      renderEvents();
+
+      // Отправляем данные в Telegram WebApp
+      sendDataToTelegram(newEvent);
+
+      // Закрываем форму и показываем кнопку
+      eventFormContainer.style.display = "none";
+      openFormBtn.style.display = "block";
+
+      // Сброс формы
+      eventForm.reset();
+    });
+
+    // Инициализация
     renderCalendar();
+    renderEvents();
   </script>
 </body>
 </html>
