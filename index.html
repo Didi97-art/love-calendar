@@ -2,376 +2,201 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Love Calendar</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #fdfaf7;
+      font-family: Arial, sans-serif;
+      background-color: #fef6f9;
       margin: 0;
       padding: 0;
-      color: #4d4d4d;
-    }
-
-    header {
       text-align: center;
-      padding: 20px 0;
-      background-color: #fbe9e7;
-      color: #b36b6b;
-      font-size: 24px;
-      font-weight: bold;
     }
 
-    .calendar-container {
-      max-width: 400px;
-      margin: 20px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      padding: 16px;
+    h1 {
+      color: #e77ca4;
+      margin-top: 20px;
     }
 
-    .month {
+    .calendar {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .calendar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
     }
 
-    .month button {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #b36b6b;
-    }
-
-    .days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .dates {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .date {
-      padding: 10px;
-      border-radius: 8px;
-      user-select: none;
-    }
-
-    .today {
-      background-color: #f8c6c6;
-      font-weight: bold;
-    }
-
-    .events {
-      margin-top: 20px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .event-item {
-      padding: 8px;
-      margin: 4px 0;
-      background-color: #fff3f0;
-      border-left: 4px solid #ff9999;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    .add-button {
-      display: block;
-      margin: 20px auto 0;
-      padding: 12px 24px;
-      background-color: #f8c6c6;
+    .calendar-header button {
+      background-color: #e77ca4;
       color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      padding: 5px 10px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    .add-button:hover {
-      background-color: #f49ca0;
-    }
-
-    /* Форма добавления события */
-    #eventFormContainer {
-      display: none; /* скрыта по умолчанию */
-      background: #fff;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
-    }
-
-    #eventForm label {
-      display: block;
-      margin-top: 12px;
+    .calendar-header span {
+      font-size: 1.2em;
       font-weight: bold;
-      color: #b36b6b;
     }
 
-    #eventForm input[type="text"],
-    #eventForm input[type="date"],
-    #eventForm select {
+    .day-names, .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day-names div, .calendar-days div {
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .day-names div {
+      background-color: #fce4ec;
+      font-weight: bold;
+    }
+
+    .calendar-days div {
+      background-color: #fff0f5;
+      cursor: pointer;
+    }
+
+    .calendar-days div:hover {
+      background-color: #f8bbd0;
+    }
+
+    .form-container {
+      margin: 20px auto;
+      max-width: 400px;
+      background-color: #fff0f5;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .form-container input, .form-container button {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
+      padding: 10px;
+      margin: 8px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 14px;
     }
 
-    #eventForm button {
-      margin-top: 16px;
-      background-color: #f8c6c6;
+    .form-container button {
+      background-color: #e77ca4;
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
     }
 
-    #eventForm button:hover {
-      background-color: #f49ca0;
-    }
-
-    /* Кнопка отмены */
-    #eventForm #cancelBtn {
-      background-color: #ccc;
-      color: #555;
-      margin-left: 10px;
-    }
-
-    #eventForm #cancelBtn:hover {
-      background-color: #aaa;
+    .form-container button:hover {
+      background-color: #d2668c;
     }
   </style>
 </head>
 <body>
+  <h1>Love Calendar</h1>
 
-  <header>Love Calendar</header>
-
-  <div class="calendar-container">
-    <div class="month">
-      <button onclick="prevMonth()">&lt;</button>
-      <div id="monthYear">Май 2025</div>
-      <button onclick="nextMonth()">&gt;</button>
+  <div class="calendar">
+    <div class="calendar-header">
+      <button onclick="prevMonth()">‹</button>
+      <span id="monthYear"></span>
+      <button onclick="nextMonth()">›</button>
     </div>
 
-    <div class="days">
-      <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+    <div class="day-names">
+      <div>Пн</div>
+      <div>Вт</div>
+      <div>Ср</div>
+      <div>Чт</div>
+      <div>Пт</div>
+      <div>Сб</div>
+      <div>Вс</div>
     </div>
-    <div class="dates" id="calendarDates"></div>
+    <div class="calendar-days" id="calendarDays"></div>
+  </div>
 
-    <div class="events">
-      <h4>Ближайшие события:</h4>
-      <div id="eventList">
-        <!-- События будут тут -->
-      </div>
-    </div>
-
-    <button class="add-button" id="openFormBtn">Добавить событие</button>
-
-    <!-- Форма добавления события -->
-    <div id="eventFormContainer">
-      <form id="eventForm">
-        <label for="eventDate">Дата события</label>
-        <input type="date" id="eventDate" name="eventDate" required />
-
-        <label for="eventName">Название события</label>
-        <input type="text" id="eventName" name="eventName" placeholder="Например: День рождения" required />
-
-        <label for="eventRepeat">Повторять</label>
-        <select id="eventRepeat" name="eventRepeat">
-          <option value="нет">Нет</option>
-          <option value="ежедневно">Ежедневно</option>
-          <option value="еженедельно">Еженедельно</option>
-          <option value="ежемесячно">Ежемесячно</option>
-          <option value="ежегодно">Ежегодно</option>
-        </select>
-
-        <label for="eventGuest">Пригласить (Telegram username)</label>
-        <input type="text" id="eventGuest" name="eventGuest" placeholder="@username" />
-
-        <div style="margin-top: 16px;">
-          <button type="submit">Сохранить</button>
-          <button type="button" id="cancelBtn">Отмена</button>
-        </div>
-      </form>
-    </div>
+  <div class="form-container">
+    <h2>Добавить событие</h2>
+    <form id="eventForm">
+      <input type="text" id="eventTitle" placeholder="Название события" required />
+      <input type="date" id="eventDate" required />
+      <button type="submit">Сохранить</button>
+    </form>
   </div>
 
   <script>
-    // --- Календарь ---
-    const calendarDates = document.getElementById("calendarDates");
-    const monthYear = document.getElementById("monthYear");
+    const monthYear = document.getElementById('monthYear');
+    const calendarDays = document.getElementById('calendarDays');
+    const eventDateInput = document.getElementById('eventDate');
 
-    let today = new Date();
-    let currentMonth = today.getMonth();
-    let currentYear = today.getFullYear();
-
-    const monthNames = [
-      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-    ];
-
-    // Список событий в памяти (для демо)
-    let events = [];
+    let currentDate = new Date();
 
     function renderCalendar() {
-      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-      const offset = (firstDay + 6) % 7; // Начинаем с понедельника
-      calendarDates.innerHTML = "";
-      monthYear.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
 
-      for (let i = 0; i < offset; i++) {
-        const empty = document.createElement("div");
-        calendarDates.appendChild(empty);
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+      monthYear.textContent = `${monthNames[month]} ${year}`;
+
+      calendarDays.innerHTML = '';
+
+      let start = firstDay === 0 ? 6 : firstDay - 1;
+
+      for (let i = 0; i < start; i++) {
+        const empty = document.createElement('div');
+        calendarDays.appendChild(empty);
       }
 
-      for (let date = 1; date <= lastDate; date++) {
-        const day = document.createElement("div");
-        day.className = "date";
-        day.innerText = date;
+      for (let day = 1; day <= lastDate; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.textContent = day;
 
-        if (
-          date === today.getDate() &&
-          currentMonth === today.getMonth() &&
-          currentYear === today.getFullYear()
-        ) {
-          day.classList.add("today");
-        }
+        dayElement.onclick = () => {
+          const selectedDate = new Date(year, month, day);
+          eventDateInput.value = selectedDate.toISOString().split('T')[0];
+        };
 
-        calendarDates.appendChild(day);
+        calendarDays.appendChild(dayElement);
       }
-    }
-
-    function nextMonth() {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      renderCalendar();
     }
 
     function prevMonth() {
-      currentMonth--;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      }
+      currentDate.setMonth(currentDate.getMonth() - 1);
       renderCalendar();
     }
 
-    // --- Работа с формой ---
-    const openFormBtn = document.getElementById("openFormBtn");
-    const eventFormContainer = document.getElementById("eventFormContainer");
-    const eventForm = document.getElementById("eventForm");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const eventList = document.getElementById("eventList");
-
-    openFormBtn.onclick = () => {
-      eventFormContainer.style.display = "block";
-      openFormBtn.style.display = "none";
-
-      // Установим дату по умолчанию сегодняшним числом
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const dd = String(today.getDate()).padStart(2, "0");
-      eventForm.eventDate.value = `${yyyy}-${mm}-${dd}`;
-      eventForm.eventName.value = "";
-      eventForm.eventRepeat.value = "нет";
-      eventForm.eventGuest.value = "";
-    };
-
-    cancelBtn.onclick = () => {
-      eventFormContainer.style.display = "none";
-      openFormBtn.style.display = "block";
-    };
-
-    // Функция отобразить события под календарём
-    function renderEvents() {
-      if(events.length === 0) {
-        eventList.innerHTML = '<div>Нет событий</div>';
-        return;
-      }
-      eventList.innerHTML = "";
-      // Отобразим ближайшие 5 событий по дате (сортировка)
-      let sorted = [...events].sort((a,b) => new Date(a.date) - new Date(b.date));
-      sorted.slice(0,5).forEach(ev => {
-        const div = document.createElement("div");
-        div.className = "event-item";
-        div.innerText = `${formatDateForDisplay(ev.date)} — ${ev.name}` +
-          (ev.guest ? ` (с ${ev.guest})` : "") +
-          (ev.repeat && ev.repeat !== "нет" ? ` [повтор: ${ev.repeat}]` : "");
-        eventList.appendChild(div);
-      });
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
     }
 
-    // Формат даты для отображения: "27 мая"
-    function formatDateForDisplay(dateStr) {
-      const d = new Date(dateStr);
-      const day = d.getDate();
-      const month = monthNames[d.getMonth()];
-      return `${day} ${month}`;
-    }
-
-    // Отправка данных в Telegram WebApp (если доступен)
-    function sendDataToTelegram(data) {
-      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.sendData) {
-        Telegram.WebApp.sendData(JSON.stringify(data));
-      } else {
-        console.log("Telegram WebApp не доступен. Данные:", data);
-      }
-    }
-
-    eventForm.addEventListener("submit", function(e) {
+    document.getElementById("eventForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const newEvent = {
-        date: eventForm.eventDate.value,
-        name: eventForm.eventName.value.trim(),
-        repeat: eventForm.eventRepeat.value,
-        guest: eventForm.eventGuest.value.trim(),
-      };
+      const title = document.getElementById("eventTitle").value;
+      const date = document.getElementById("eventDate").value;
 
-      if(!newEvent.name || !newEvent.date) {
-        alert("Пожалуйста, заполните дату и название события.");
-        return;
-      }
+      // Здесь можно отправить данные в Telegram-бота через API
+      console.log("Событие:", title, date);
 
-      // Добавляем в локальный массив (для демонстрации)
-      events.push(newEvent);
-      renderEvents();
-
-      // Отправляем данные в Telegram WebApp
-      sendDataToTelegram(newEvent);
-
-      // Закрываем форму и показываем кнопку
-      eventFormContainer.style.display = "none";
-      openFormBtn.style.display = "block";
-
-      // Сброс формы
-      eventForm.reset();
+      this.reset();
+      alert("Событие добавлено!");
     });
 
-    // Инициализация
     renderCalendar();
-    renderEvents();
   </script>
 </body>
 </html>
