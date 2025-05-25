@@ -1,145 +1,29 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Love Calendar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fdf6f8;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-    button {
-      background-color: #ffb6c1;
-      border: none;
-      padding: 10px 20px;
-      margin: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+BOT_TOKEN = '8074180837:AAFmccQgXhctIaGS0wz7rswBepqADYX74rM'  # ← замени на свой токен
+WEB_APP_URL = 'https://love-calendar-553a.vercel.app/'  # ← мини-приложение
 
-    /* Модальное окно */
-    #modalOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
+# Команда /start — показывает кнопку для открытия календаря
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("Открыть календарь", web_app=WebAppInfo(url=WEB_APP_URL))]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Привет! Открой календарь:", reply_markup=reply_markup)
 
-    #eventModal {
-      display: none;
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      z-index: 1000;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      text-align: left;
-    }
+# Получение данных из мини-приложения (через Telegram WebApp)
+async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    data = update.message.web_app_data.data
+    print("ПОЛУЧЕНО:", data)  # Отладка — посмотри в консоли
+    await update.message.reply_text(f"Ты добавила событие: {data}")
 
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-  </style>
-</head>
-<body>
+# Запуск бота
+if name == '__main__':
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-  <h1>Love Calendar</h1>
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
 
-  <!-- Кнопка -->
-  <button id="addEventBtn">Добавить событие</button>
-
-  <!-- Затемнение фона -->
-  <div id="modalOverlay"></div>
-
-  <!-- Модальное окно -->
-  <div id="eventModal">
-    <h3>Новое событие</h3>
-
-    <label for="eventTitle">Название события:</label>
-    <input type="text" id="eventTitle" name="eventTitle"/>
-
-    <label for="eventDate">Дата:</label>
-    <input type="date" id="eventDate" name="eventDate"/>
-
-    <label for="eventRepeat">Повторяемость:</label>
-    <select id="eventRepeat" name="eventRepeat">
-      <option value="нет">Не повторяется</option>
-      <option value="ежедневно">Ежедневно</option>
-      <option value="еженедельно">Еженедельно</option>
-      <option value="ежемесячно">Ежемесячно</option>
-      <option value="ежегодно">Ежегодно</option>
-    </select>
-
-    <button id="saveEventBtn">Сохранить</button>
-    <button id="closeModalBtn">Отмена</button>
-  </div>
-
-  <!-- Скрипт -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const addEventBtn = document.getElementById('addEventBtn');
-      const eventModal = document.getElementById('eventModal');
-      const modalOverlay = document.getElementById('modalOverlay');
-      const saveEventBtn = document.getElementById('saveEventBtn');
-      const closeModalBtn = document.getElementById('closeModalBtn');
-
-      function openModal() {
-        eventModal.style.display = 'block';
-        modalOverlay.style.display = 'block';
-      }
-
-      function closeModal() {
-        eventModal.style.display = 'none';
-        modalOverlay.style.display = 'none';
-      }
-
-      addEventBtn.addEventListener('click', openModal);
-      closeModalBtn.addEventListener('click', closeModal);
-
-      saveEventBtn.addEventListener('click', function () {
-        const title = document.getElementById('eventTitle').value;
-        const date = document.getElementById('eventDate').value;
-        const repeat = document.getElementById('eventRepeat').value;
-
-        if (!title || !date) {
-          alert('Пожалуйста, заполните все поля.');
-          return;
-        }
-
-        const eventData = {
-          title: title,
-          date: date,
-          repeat: repeat
-        };
-
-        if (window.Telegram && Telegram.WebApp) {
-          Telegram.WebApp.sendData(JSON.stringify(eventData));
-        } else {
-          console.error('Telegram WebApp не доступен.');
-        }
-
-        closeModal();
-      });
-    });
-  </script>
-
-</body>
-</html>
+    print("Бот запущен!")
+    app.run_polling()
