@@ -1,178 +1,195 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Love Calendar</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 420px;
-    margin: 20px auto;
-    padding: 15px;
-    background: #faf4f0;
-    color: #4a3c3c;
-  }
-  h1 {
-    text-align: center;
-    color: #b35959;
-  }
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: 600;
-  }
-  input, select, textarea {
-    width: 100%;
-    padding: 7px;
-    margin-top: 4px;
-    border: 1px solid #ccaaaa;
-    border-radius: 6px;
-    font-size: 15px;
-    box-sizing: border-box;
-  }
-  button {
-    margin-top: 15px;
-    width: 100%;
-    padding: 12px;
-    background-color: #b35959;
-    border: none;
-    color: white;
-    font-size: 18px;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background-color: #9d4949;
-  }
-  .feedback {
-    margin-top: 15px;
-    font-weight: bold;
-    color: green;
-    text-align: center;
-  }
-  .history {
-    margin-top: 25px;
-    background: #fff3f3;
-    padding: 12px;
-    border-radius: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .event-item {
-    border-bottom: 1px solid #d8b5b5;
-    padding: 8px 0;
-  }
-  .event-item:last-child {
-    border: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Calendar</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #fdfaf7;
+      margin: 0;
+      padding: 0;
+      color: #4d4d4d;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #fbe9e7;
+      color: #b36b6b;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .calendar-container {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 16px;
+    }
+
+    .month {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .month button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #b36b6b;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .date {
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .today {
+      background-color: #f8c6c6;
+      font-weight: bold;
+    }
+
+    .events {
+      margin-top: 20px;
+    }
+
+    .event-item {
+      padding: 8px;
+      margin: 4px 0;
+      background-color: #fff3f0;
+      border-left: 4px solid #ff9999;
+      border-radius: 4px;
+    }
+
+    .add-button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #f8c6c6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .add-button:hover {
+      background-color: #f49ca0;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Добавить событие</h1>
-<form id="eventForm">
-  <label for="title">Название события *</label>
-  <input type="text" id="title" name="title" required placeholder="Например, Встреча" />
+  <header>Love Calendar</header>
 
-  <label for="date">Дата *</label>
-  <input type="date" id="date" name="date" required />
+  <div class="calendar-container">
+    <div class="month">
+      <button onclick="prevMonth()">&lt;</button>
+      <div id="monthYear">Май 2025</div>
+      <button onclick="nextMonth()">&gt;</button>
+    </div>
 
-  <label for="time">Время</label>
-  <input type="time" id="time" name="time" />
+    <div class="days">
+      <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+    </div>
+    <div class="dates" id="calendarDates"></div>
 
-  <label for="type">Тип события</label>
-  <select id="type" name="type">
-    <option value="Встреча">Встреча</option>
-    <option value="Праздник">Праздник</option>
-    <option value="Задача">Задача</option>
-    <option value="Напоминание">Напоминание</option>
-  </select>
+    <div class="events">
+      <h4>Ближайшие события:</h4>
+      <div class="event-item">27 мая — День рождения Ани</div>
+      <div class="event-item">30 мая — Совместный ужин</div>
+      <div class="event-item">3 июня — Годовщина</div>
+      <div class="event-item">6 июня — Поход в кино</div>
+      <div class="event-item">10 июня — План на отпуск</div>
+    </div>
 
-  <label for="emotion">Настроение</label>
-  <select id="emotion" name="emotion">
-    <option value="😊">😊 Радость</option>
-    <option value="😢">😢 Грусть</option>
-    <option value="😍">😍 Любовь</option>
-    <option value="😠">😠 Злость</option>
-    <option value="😴">😴 Сонливость</option>
-  </select>
+    <button class="add-button" onclick="alert('Окно добавления события будет здесь')">
+      Добавить событие
+    </button>
+  </div>
 
-  <label for="notes">Примечания</label>
-  <textarea id="notes" name="notes" rows="3" placeholder="Дополнительная информация..."></textarea>
+  <script>
+    const calendarDates = document.getElementById("calendarDates");
+    const monthYear = document.getElementById("monthYear");
 
-  <button type="submit">Отправить в Telegram</button>
-</form>
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
 
-<div class="feedback" id="feedback"></div>
+    const monthNames = [
+      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ];
 
-<h2>История событий</h2>
-<div class="history" id="history"></div>
+    function renderCalendar() {
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const offset = (firstDay + 6) % 7; // Начинаем с понедельника
+      calendarDates.innerHTML = "";
+      monthYear.innerText = `${monthNames[currentMonth]} ${currentYear}`;
 
-<script>
-  const tg = window.Telegram?.WebApp;
-  const form = document.getElementById('eventForm');
-  const feedbackEl = document.getElementById('feedback');
-  const historyEl = document.getElementById('history');
+      for (let i = 0; i < offset; i++) {
+        const empty = document.createElement("div");
+        calendarDates.appendChild(empty);
+      }
 
-  // Загрузка истории из localStorage
-  let eventsHistory = JSON.parse(localStorage.getItem('loveCalendarEvents') || '[]');
+      for (let date = 1; date <= lastDate; date++) {
+        const day = document.createElement("div");
+        day.className = "date";
+        day.innerText = date;
 
-  function renderHistory() {
-    if (eventsHistory.length === 0) {
-      historyEl.innerHTML = '<i>События ещё не добавлены</i>';
-      return;
-    }
-    historyEl.innerHTML = eventsHistory.map(event => `
-      <div class="event-item">
-        <strong>${event.title}</strong> (${event.date} ${event.time || ''})<br/>
-        Тип: ${event.type}, Настроение: ${event.emotion || '-'}<br/>
-        ${event.notes ? 'Примечания: ' + event.notes : ''}
-      </div>
-    `).join('');
-  }
+        if (
+          date === today.getDate() &&
+          currentMonth === today.getMonth() &&
+          currentYear === today.getFullYear()
+        ) {
+          day.classList.add("today");
+        }
 
-  renderHistory();
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const eventData = {
-      title: form.title.value.trim(),
-      date: form.date.value,
-      time: form.time.value,
-      type: form.type.value,
-      emotion: form.emotion.value,
-      notes: form.notes.value.trim(),
-    };
-
-    // Отправка данных в Telegram
-    if (tg) {
-      tg.sendData(JSON.stringify(eventData));
-      tg.close();
+        calendarDates.appendChild(day);
+      }
     }
 
-    // Добавляем событие в локальную историю
-    eventsHistory.push(eventData);
-    localStorage.setItem('loveCalendarEvents', JSON.stringify(eventsHistory));
-    renderHistory();
+    function nextMonth() {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
+    }
 
-    // Фидбэк
-    feedbackEl.
-  textContent = 'Событие добавлено!';
-    form.reset();
+    function prevMonth() {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    }
 
-    setTimeout(() => {
-      feedbackEl.textContent = '';
-    }, 3000);
-  });
-
-  // Проверяем, что запускается из Telegram
-  if (!tg) {
-    alert('Это приложение работает только внутри Telegram WebApp.');
-  }
-</script>
-
+    renderCalendar();
+  </script>
 </body>
 </html>
