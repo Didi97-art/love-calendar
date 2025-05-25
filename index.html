@@ -1,29 +1,89 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Love Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f7f4f0;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #a85c5c;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background-color: #a85c5c;
+      border: none;
+      color: white;
+      font-size: 18px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #934848;
+    }
+  </style>
+</head>
+<body>
+  <h1>Добавить событие</h1>
+  <form id="eventForm">
+    <label for="title">Название события</label>
+    <input type="text" id="title" name="title" required />
 
-BOT_TOKEN = '8074180837:AAFmccQgXhctIaGS0wz7rswBepqADYX74rM'  # ← замени на свой токен
-WEB_APP_URL = 'https://love-calendar-553a.vercel.app/'  # ← мини-приложение
+    <label for="date">Дата</label>
+    <input type="date" id="date" name="date" required />
 
-# Команда /start — показывает кнопку для открытия календаря
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("Открыть календарь", web_app=WebAppInfo(url=WEB_APP_URL))]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Привет! Открой календарь:", reply_markup=reply_markup)
+    <label for="notes">Примечание</label>
+    <textarea id="notes" name="notes" rows="3"></textarea>
 
-# Получение данных из мини-приложения (через Telegram WebApp)
-async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    data = update.message.web_app_data.data
-    print("ПОЛУЧЕНО:", data)  # Отладка — посмотри в консоли
-    await update.message.reply_text(f"Ты добавила событие: {data}")
+    <button type="submit">Отправить в Telegram</button>
+  </form>
 
-# Запуск бота
-if name == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+  <script>
+    // Проверяем, что Telegram WebApp API доступен
+    if (window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
+      document.getElementById('eventForm').addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    print("Бот запущен!")
-    app.run_polling()
+        const eventData = {
+          title: document.getElementById('title').value,
+          date: document.getElementById('date').value,
+          notes: document.getElementById('notes').value,
+        };
+
+        // Отправляем данные в бота
+        tg.sendData(JSON.stringify(eventData));
+
+        // Можно закрыть WebApp после отправки
+        tg.close();
+      });
+    } else {
+      alert('Это приложение должно запускаться из Telegram WebApp');
+    }
+  </script>
+</body>
+</html>
