@@ -19,7 +19,7 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
     await update.message.reply_text(f"Ты добавила событие: {data}")
 
 # Запуск бота
-if name == '__main__':
+if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
