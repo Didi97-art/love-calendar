@@ -73,74 +73,39 @@
       background-color: #f8bbd0;
     }
 
-    .add-button {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      font-size: 30px;
-      border: none;
-      border-radius: 50%;
-      background-color: #e77ca4;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Модальное окно */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 100;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-    }
-
-    .modal-content {
-      background-color: #fff0f5;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 10px;
+    .form-container {
+      margin: 20px auto;
       max-width: 400px;
+      background-color: #fff0f5;
+      padding: 15px;
+      border-radius: 10px;
       text-align: left;
     }
 
-    .modal-content h2 {
-      margin-top: 0;
-      color: #e77ca4;
-    }
-
-    .modal-content input,
-    .modal-content select,
-    .modal-content button {
+    .form-container input, .form-container button, .form-container select {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
-    .modal-content button[type="submit"] {
+    .form-container button {
       background-color: #e77ca4;
       color: white;
       border: none;
       cursor: pointer;
     }
 
-    .modal-content button[type="submit"]:hover {
+    .form-container button:hover {
       background-color: #d2668c;
     }
 
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-      color: #999;
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -166,41 +131,44 @@
     <div class="calendar-days" id="calendarDays"></div>
   </div>
 
-  <!-- Кнопка + -->
-  <button class="add-button" onclick="openModal()">+</button>
+  <div class="form-container">
+    <h2>Добавляем событие</h2>
+    <form id="eventForm">
+      <label for="eventTitle">Название события</label>
+      <input type="text" id="eventTitle" placeholder="Название события" required />
 
-  <!-- Модальное окно -->
-  <div id="eventModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h2>Добавляем событие</h2>
-      <form id="eventForm">
-        <input type="text" id="eventTitle" placeholder="Название события" required />
-        <input type="date" id="eventDate" required />
-        <input type="time" id="eventTime" required />
-        <input type="text" id="eventNote" placeholder="Пометка" />
-        <select id="eventRepeat">
-          <option value="none">Не повторяется</option>
-          <option value="daily">Каждый день</option>
-          <option value="weekly">Каждую неделю</option>
-          <option value="monthly">Каждый месяц</option>
-          <option value="year">Каждый год</option>
-        </select>
-        <button type="submit">Сохранить</button>
-      </form>
-    </div>
+      <label for="eventDate">Дата</label>
+      <input type="date" id="eventDate" required />
+
+      <label for="eventTime">Время</label>
+      <input type="time" id="eventTime" required />
+
+      <label for="eventNote">Пометка (необязательно)</label>
+      <input type="text" id="eventNote" placeholder="Пометка" />
+
+      <label for="eventRepeat">Регулярность</label>
+      <select id="eventRepeat">
+        <option value="once">Однократно</option>
+        <option value="daily">Ежедневно</option>
+        <option value="weekly">Еженедельно</option>
+        <option value="monthly">Ежемесячно</option>
+      </select>
+
+      <button type="submit">Сохранить</button>
+    </form>
   </div>
 
+  <!-- Подключаем Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
+    const supabaseUrl = 'ТВОЙ_SUPABASE_URL';  // Заменить на свой URL
+    const supabaseKey = 'ТВОЙ_SUPABASE_ANON_KEY';  // Заменить на свой анонимный ключ
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
     const monthYear = document.getElementById('monthYear');
     const calendarDays = document.getElementById('calendarDays');
     const eventDateInput = document.getElementById('eventDate');
-
-const supabaseUrl = 'https://gppeowtutjylrcwlrdkd.supabase.co';  // Вставь сюда Project URL из Supabase
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcGVvd3R1dGp5bHJjd2xyZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyMDE5MTIsImV4cCI6MjA2Mzc3NzkxMn0.EVjUxAfvsJB2KiG3KYyWircPxftHFAZhfMSt2uaPgWY';  // Вставь сюда Anon Public Key
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let currentDate = new Date();
 
@@ -232,7 +200,6 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         dayElement.onclick = () => {
           const selectedDate = new Date(year, month, day);
           eventDateInput.value = selectedDate.toISOString().split('T')[0];
-          openModal();
         };
 
         calendarDays.appendChild(dayElement);
@@ -249,48 +216,37 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
       renderCalendar();
     }
 
-    function openModal() {
-      document.getElementById("eventModal").style.display = "block";
-    }
-
-    function closeModal() {
-      document.getElementById("eventModal").style.display = "none";
-    }
-
     document.getElementById("eventForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
+      e.preventDefault();
 
-  const title = document.getElementById("eventTitle").value;
-  const date = document.getElementById("eventDate").value;
-  const time = document.getElementById("eventTime").value;
-  const note = document.getElementById("eventNote").value;
-  const repeat = document.getElementById("eventRepeat").value;
+      const title = document.getElementById("eventTitle").value;
+      const date = document.getElementById("eventDate").value;
+      const time = document.getElementById("eventTime").value;
+      const note = document.getElementById("eventNote").value;
+      const repeat = document.getElementById("eventRepeat").value;
 
-  const { data, error } = await supabase
-    .from('events')
-    .insert([
-      {
-        user_id: 'default_user',
-        title: title,
-        date: date,
-        time: time,
-        note: note,
-        repeat: repeat
+      const { data, error } = await supabase
+        .from('events')
+        .insert([
+          {
+            user_id: 'default_user',
+            title: title,
+            date: date,
+            time: time,
+            note: note,
+            repeat: repeat
+          }
+        ]);
+
+      if (error) {
+        alert('Ошибка при добавлении события: ' + error.message);
+      } else {
+        alert('Событие добавлено!');
+        this.reset();
       }
-    ]);
-
-  if (error) {
-    alert('Ошибка при добавлении события: ' + error.message);
-  } else {
-    alert('Событие добавлено!');
-    this.reset();
-  }
-});
+    });
 
     renderCalendar();
   </script>
-
-
-
 </body>
 </html>
