@@ -2,53 +2,90 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Love Calendar</title>
   <style>
     body {
-      background-color: #f0f8ff;
-      color: #333;
       font-family: Arial, sans-serif;
+      background-color: #fef6f9;
       margin: 0;
       padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #e77ca4;
+      margin-top: 20px;
     }
 
     .calendar {
       max-width: 600px;
-      margin: auto;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
       padding: 20px;
-      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    #monthYear {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-
-    .navigation {
+    .calendar-header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
     }
 
-    .calendar-days {
+    .calendar-header button {
+      background-color: #e77ca4;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .calendar-header span {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .day-names, .calendar-days {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 5px;
     }
 
-    .calendar-days div {
+    .day-names div, .calendar-days div {
       padding: 10px;
-      background: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
     }
 
-    .today {
-      background-color: #ffd1dc;
+    .day-names div {
+      background-color: #fce4ec;
       font-weight: bold;
-      border: 2px solid #e77ca4;
+    }
+
+    .calendar-days div {
+      background-color: #fff0f5;
+      cursor: pointer;
+    }
+
+    .calendar-days div:hover {
+      background-color: #f8bbd0;
+    }
+
+    .add-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      border: none;
+      border-radius: 50%;
+      background-color: #e77ca4;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     /* Модальное окно */
@@ -61,58 +98,76 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(0,0,0,0.5);
     }
 
     .modal-content {
-      background-color: #fff;
+      background-color: #fff0f5;
       margin: 10% auto;
       padding: 20px;
-      border-radius: 8px;
-      width: 90%;
+      border-radius: 10px;
       max-width: 400px;
+      text-align: left;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #e77ca4;
+    }
+
+    .modal-content input,
+    .modal-content select,
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content button[type="submit"] {
+      background-color: #e77ca4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .modal-content button[type="submit"]:hover {
+      background-color: #d2668c;
     }
 
     .close {
       float: right;
-      font-size: 28px;
+      font-size: 20px;
       cursor: pointer;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      box-sizing: border-box;
-    }
-
-    #eventsList {
-      margin-top: 20px;
-    }
-
-    @media (max-width: 480px) {
-      .calendar-days div {
-        padding: 8px;
-        font-size: 14px;
-      }
-
-      #monthYear {
-        font-size: 1.2em;
-      }
+      color: #999;
     }
   </style>
 </head>
 <body>
+  <h1>Love Calendar</h1>
 
   <div class="calendar">
-    <div class="navigation">
-      <button onclick="prevMonth()">&lt;</button>
-      <div id="monthYear"></div>
-      <button onclick="nextMonth()">&gt;</button>
+    <div class="calendar-header">
+      <button onclick="prevMonth()">‹</button>
+      <span id="monthYear"></span>
+      <button onclick="nextMonth()">›</button>
     </div>
-    <div id="calendarDays" class="calendar-days"></div>
-    <div id="eventsList"></div>
+
+    <div class="day-names">
+      <div>Пн</div>
+      <div>Вт</div>
+      <div>Ср</div>
+      <div>Чт</div>
+      <div>Пт</div>
+      <div>Сб</div>
+      <div>Вс</div>
+    </div>
+    <div class="calendar-days" id="calendarDays"></div>
   </div>
+
+  <!-- Кнопка + -->
+  <button class="add-button" onclick="openModal()">+</button>
 
   <!-- Модальное окно -->
   <div id="eventModal" class="modal">
@@ -136,41 +191,29 @@
     </div>
   </div>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-
   <script>
-    const supabaseUrl = 'https://gppeowtutjylrcwlrdkd.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJI...PgWY'; // обрезано для примера
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
     const monthYear = document.getElementById('monthYear');
     const calendarDays = document.getElementById('calendarDays');
     const eventDateInput = document.getElementById('eventDate');
-    const eventsList = document.getElementById('eventsList');
 
     let currentDate = new Date();
-    let eventsData = [];
 
-    function openModal() {
-      document.getElementById("eventModal").style.display = "block";
-    }
-
-    function closeModal() {
-      document.getElementById("eventModal").style.display = "none";
-    }
-
-    async function renderCalendar() {
+    function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
+
       const firstDay = new Date(year, month, 1).getDay();
       const lastDate = new Date(year, month + 1, 0).getDate();
-      const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
       monthYear.textContent = `${monthNames[month]} ${year}`;
+
       calendarDays.innerHTML = '';
 
       let start = firstDay === 0 ? 6 : firstDay - 1;
+
       for (let i = 0; i < start; i++) {
         const empty = document.createElement('div');
         calendarDays.appendChild(empty);
@@ -180,26 +223,14 @@
         const dayElement = document.createElement('div');
         dayElement.textContent = day;
 
-        const selectedDate = new Date(year, month, day);
-        const today = new Date();
-
-        if (
-          selectedDate.getFullYear() === today.getFullYear() &&
-          selectedDate.getMonth() === today.getMonth() &&
-          selectedDate.getDate() === today.getDate()
-        ) {
-          dayElement.classList.add('today');
-        }
-
         dayElement.onclick = () => {
+          const selectedDate = new Date(year, month, day);
           eventDateInput.value = selectedDate.toISOString().split('T')[0];
           openModal();
         };
 
         calendarDays.appendChild(dayElement);
       }
-
-      await loadEvents();
     }
 
     function prevMonth() {
@@ -212,7 +243,15 @@
       renderCalendar();
     }
 
-    document.getElementById("eventForm").addEventListener("submit", async function (e) {
+    function openModal() {
+      document.getElementById("eventModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("eventModal").style.display = "none";
+    }
+
+    document.getElementById("eventForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
       const title = document.getElementById("eventTitle").value;
@@ -221,45 +260,53 @@
       const note = document.getElementById("eventNote").value;
       const repeat = document.getElementById("eventRepeat").value;
 
-      const { data, error } = await supabase
-        .from('event')
-        .insert([{ title, date, time, note, repeat }]);
+      console.log("Событие:", { title, date, time, note, repeat });
 
-      if (error) {
-        alert("Ошибка при добавлении события.");
-      } else {
-        alert("Событие добавлено!");
-        this.reset();
-        closeModal();
-        await renderCalendar();
-      }
+      this.reset();
+      closeModal();
+      alert("Событие добавлено!");
     });
-
-    async function loadEvents() {
-      const { data, error } = await supabase
-        .from('event')
-        .select('*')
-        .order('date', { ascending: true });
-
-      if (error) {
-        console.error("Ошибка загрузки событий:", error);
-        return;
-      }
-
-      eventsData = data;
-      displayEventsList();
-    }
-
-    function displayEventsList() {
-      eventsList.innerHTML = "";
-      eventsData.forEach(event => {
-        const div = document.createElement("div");
-        div.textContent = `${event.title} - ${event.date} ${event.time}`;
-        eventsList.appendChild(div);
-      });
-    }
 
     renderCalendar();
   </script>
+
+<!-- 1. Подключаем Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+
+<script>
+  // 2. Инициализируем Supabase (замени на свои данные!)
+  const supabaseUrl = 'https://gppeowtutjylrcwlrdkd.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcGVvd3R1dGp5bHJjd2xyZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyMDE5MTIsImV4cCI6MjA2Mzc3NzkxMn0.EVjUxAfvsJB2KiG3KYyWircPxftHFAZhfMSt2uaPgWY';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  // 3. Форма сохранения события
+  document.getElementById("eventForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const title = document.getElementById("eventTitle").value;
+    const date = document.getElementById("eventDate").value;
+    const time = document.getElementById("eventTime").value;
+    const note = document.getElementById("eventNote").value;
+    const repeat = document.getElementById("eventRepeat").value;
+
+    // 4. Отправка события в таблицу Supabase
+    const { data, error } = await supabase
+      .from('event') // <-- Название таблицы в Supabase
+      .insert([
+        { title, date, time, note, repeat }
+      ]);
+
+    if (error) {
+      console.error("Ошибка сохранения:", error);
+      alert("Ошибка при добавлении события.");
+    } else {
+      console.log("Событие добавлено:", data);
+      alert("Событие добавлено!");
+      this.reset();
+      closeModal();
+    }
+  });
+</script>
+
 </body>
 </html>
