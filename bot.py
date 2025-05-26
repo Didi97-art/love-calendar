@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-BOT_TOKEN = '8074180837:AAFmccQgXhctIaGS0wz7rswBepqADYX74rM'  # ← замени на свой токен
+BOT_TOKEN = '7844556324:AAEG50y7hGIy2hRf0_7KqFRRrVfR5nJtH9k'  # ← замени на свой токен
 WEB_APP_URL = 'https://love-calendar-553a.vercel.app/'  # ← мини-приложение
 
 # Команда /start — показывает кнопку для открытия календаря
