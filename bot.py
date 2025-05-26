@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 
 # Загружаем переменные окружения из файла .env
 load_dotenv()
@@ -17,10 +17,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Привет! Открой календарь:", reply_markup=reply_markup)
-
 # Обработка нажатия на кнопку «Добавить событие»
-async def handle_add_event(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Введите название события:")
+async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    if query.data == 'add_event':
+        await query.message.reply_text("Введите название события:")
 
 # Получение данных из мини-приложения (через Telegram WebApp)
 async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -32,7 +34,7 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.Regex('^Добавить событие$'), handle_add_event))
+    app.add_handler(CallbackQueryHandler(callback_handler))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
     print("Бот запущен!")
     app.run_polling()
